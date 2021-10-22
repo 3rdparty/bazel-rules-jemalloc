@@ -1,4 +1,4 @@
-load("@rules_foreign_cc//foreign_cc:configure.bzl", "configure_make")
+load("@rules_foreign_cc//foreign_cc:configure.bzl", "configure_make_variant")
 
 filegroup(
     name = "all",
@@ -6,8 +6,17 @@ filegroup(
     visibility = ["//visibility:public"],
 )
 
-configure_make(
+alias(
+    # The `configure_make_variant` wrapper around `configure_make` doesn't
+    # pass the 'visibility' setting correctly; it gets lost. As a
+    # workaround we use an alias with the correct visibility setting.
     name = "jemalloc",
+    actual = "jemalloc_preinstalled_make",
+    visibility = ["//visibility:public"],
+)
+
+configure_make_variant(
+    name = "jemalloc_preinstalled_make",
     autoconf = True,
     configure_in_place = True,
     env = select({
@@ -23,5 +32,8 @@ configure_make(
         ],
         "//conditions:default": ["libjemalloc.a"],
     }),
-    visibility = ["//visibility:public"],
+    # We need to use the system-default make; the version of make packaged
+    # with `rules_foreign_cc` (4.3) segfaults on GitHub's Actions workers.
+    # The version that is pre-installed on those workers (3.81) works fine.
+    toolchain = "@rules_foreign_cc//toolchains:preinstalled_make_toolchain",
 )
