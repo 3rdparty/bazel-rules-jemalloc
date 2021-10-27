@@ -1,4 +1,5 @@
 load("@rules_foreign_cc//foreign_cc:configure.bzl", "configure_make_variant")
+load("//bazel:do_nothing.bzl", "do_nothing")
 
 filegroup(
     name = "all",
@@ -11,7 +12,15 @@ alias(
     # pass the 'visibility' setting correctly; it gets lost. As a
     # workaround we use an alias with the correct visibility setting.
     name = "jemalloc",
-    actual = "jemalloc_preinstalled_make",
+    actual = select({
+        # For now jemalloc library successfully builds on macOS
+        # and Linux. In future we are going to make it build on
+        # Windows too.
+        # https://github.com/3rdparty/bazel-rules-jemalloc/tree/ArthurBandaryk.jemalloc-windows
+        # That's why we do nothing on Windows.
+        "@bazel_tools//src/conditions:windows": "do_nothing_on_windows",
+        "//conditions:default": "jemalloc_preinstalled_make",
+    }),
     visibility = ["//visibility:public"],
 )
 
@@ -36,4 +45,8 @@ configure_make_variant(
     # with `rules_foreign_cc` (4.3) segfaults on GitHub's Actions workers.
     # The version that is pre-installed on those workers (3.81) works fine.
     toolchain = "@rules_foreign_cc//toolchains:preinstalled_make_toolchain",
+)
+
+do_nothing(
+    name = "do_nothing_on_windows",
 )
