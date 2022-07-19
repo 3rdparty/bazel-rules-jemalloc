@@ -22,11 +22,14 @@ def repos(external = True, repo_mapping = {}):
         repo_mapping = repo_mapping,
     )
 
-    maybe(
-        http_archive,
-        name = "com_github_3rdparty_bazel_rules_jemalloc",
-        url = "https://github.com/3rdparty/bazel-rules-jemalloc/archive/5.2.1.tar.gz",
-        sha256 = "ed51b0b37098af4ca6ed31c22324635263f8ad6471889e0592a9c0dba9136aea",
-        strip_prefix = "bazel-rules-jemalloc-jemalloc-5.2.1",
-        repo_mapping = repo_mapping,
-    )
+    if external:
+        maybe(
+            http_archive,
+            name = "com_github_3rdparty_bazel_rules_jemalloc",
+            # TODO(xander): Is this correct? This file doesn't exist, and
+            # bazel-rules-jemalloc has no published releases.
+            url = "https://github.com/3rdparty/bazel-rules-jemalloc/archive/5.2.1.tar.gz",
+            sha256 = "ed51b0b37098af4ca6ed31c22324635263f8ad6471889e0592a9c0dba9136aea",
+            strip_prefix = "bazel-rules-jemalloc-jemalloc-5.2.1",
+            repo_mapping = repo_mapping,
+        )
