@@ -26,11 +26,11 @@ configure_make_variant(
         "//conditions:default": {},
     }),
     lib_source = ":all",
-    out_static_libs = select({
+    out_shared_libs = select({
         "@bazel_tools//src/conditions:windows": [
-            "libjemalloc_a.lib",
+            "libjemalloc_so.lib",
         ],
-        "//conditions:default": ["libjemalloc.a"],
+        "//conditions:default": ["libjemalloc.so"],
     }),
     # We need to use the system-default make; the version of make packaged
     # with `rules_foreign_cc` (4.3) segfaults on GitHub's Actions workers.
