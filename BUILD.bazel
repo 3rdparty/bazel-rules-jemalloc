@@ -3,16 +3,20 @@ load("@rules_foreign_cc//foreign_cc:configure.bzl", "configure_make_variant")
 filegroup(
     name = "all",
     srcs = glob(["**"]),
-    visibility = ["//visibility:public"],
 )
 
-alias(
+# Wrap the cmake-built jemalloc code in a cc_library which can then be passed
+# to a bazel cc_binary or cc_target `malloc` attribute.
+# TODO(https://github.com/bazelbuild/rules_foreign_cc/issues/227): Remove this
+# wrapper when bazel allows any target to be pasesd to `malloc`.
+cc_library(
     # The `configure_make_variant` wrapper around `configure_make` doesn't
     # pass the 'visibility' setting correctly; it gets lost. As a
-    # workaround we use an alias with the correct visibility setting.
+    # workaround we wrap the target to give the correct visibility setting.
+    # TODO(xander): File an issue on `rules_foreign_cc` to preserve visibility.
     name = "jemalloc",
-    actual = "jemalloc_preinstalled_make",
     visibility = ["//visibility:public"],
+    deps = [":jemalloc_preinstalled_make"],
 )
 
 configure_make_variant(
